@@ -1,18 +1,19 @@
+<img src="steve-logo.webp" alt="steve" width="400">
+
 # steve
 
-A Swift CLI for driving Mac applications via the Accessibility API. Designed for automated testing and AI agent control.
+A CLI for driving Mac applications via the Accessibility API. Designed for automated testing and AI agent control.
 
-## Build
+[![Certified Shovelware](https://justin.searls.co/img/shovelware.svg)](https://justin.searls.co/shovelware/)
 
-```
-swift build -c release
-```
+## Install
 
-The binary is located at `.build/release/steve`.
+[Download latest from GitHub](https://github.com/mikker/steve/releases/latest)
 
 ## Usage
 
 All commands output JSON to stdout, except `screenshot` which outputs PNG to stdout unless `-o/--output` is provided.
+
 Errors go to stderr and return a non-zero exit code.
 
 ```
@@ -115,17 +116,26 @@ steve screenshot --element "ax://1234/0.2" -o element.png
 
 ## Exit Codes
 
-| Code | Meaning |
-| ---- | ------- |
-| 0    | Success |
-| 1    | Element not found |
-| 2    | App not found / not running |
-| 3    | Timeout |
+| Code | Meaning                           |
+| ---- | --------------------------------- |
+| 0    | Success                           |
+| 1    | Element not found                 |
+| 2    | App not found / not running       |
+| 3    | Timeout                           |
 | 4    | Permission denied (accessibility) |
-| 5    | Invalid arguments |
+| 5    | Invalid arguments                 |
 
 ## Notes
 
 - Coordinates are in screen space (0,0 = top-left of main display). Multiple monitors extend rightward/downward.
 - Element IDs are stable within a session but not across app restarts.
+
+## Build
+
 ```
+swift build -c release
+```
+
+## License
+
+MIT
