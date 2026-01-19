@@ -19,13 +19,28 @@ brew install steve
 
 ## Usage
 
-All commands output JSON to stdout, except `screenshot` which outputs PNG to stdout unless `-o/--output` is provided.
+All commands output structured text to stdout by default, except `screenshot` which outputs PNG to stdout unless `-o/--output` is provided.
 
-Errors go to stderr and return a non-zero exit code.
+Use `--format json` (or `-j`) for compact JSON output. Errors go to stderr and return a non-zero exit code.
+
+Text:
 
 ```
-{"ok": true, "data": ...}
-{"ok": false, "error": "message"}
+...
+```
+
+Example:
+
+```
+- Extensions
+  frame: x=837 y=157 w=885 h=814
+```
+
+JSON:
+
+```
+{"ok":true,"data":...}
+{"ok":false,"error":"message"}
 ```
 
 ### Application Control
@@ -130,6 +145,8 @@ steve screenshot --element "ax://1234/0.2" -o element.png
 --timeout 5
 --verbose
 --quiet
+--format text|json
+-j
 ```
 
 ## Exit Codes

@@ -6,7 +6,7 @@ final class IntegrationTests: XCTestCase {
             throw XCTSkip("Set STEVE_INTEGRATION=1 to run integration tests")
         }
         let binaryURL = try steveBinaryURL()
-        let result = try runProcess(binaryURL, arguments: ["apps"])
+        let result = try runProcess(binaryURL, arguments: ["apps", "-j"])
         XCTAssertEqual(result.exitCode, 0)
         let trimmed = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
         let data = trimmed.data(using: .utf8) ?? Data()

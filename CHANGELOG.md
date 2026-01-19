@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-01-19
+
+### Added
+- `--format json` (or `-j`) for compact JSON output.
+
+### Changed
+- Default output is structured text instead of JSON.
+- Text output now emits only data (no ok/data labels).
+- Frames are rendered inline in text output (x/y/w/h).
+- Menu output flattens the AXMenu wrapper for children.
+
 ## [0.3.0] - 2026-01-16
 
 ### Added

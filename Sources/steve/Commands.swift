@@ -16,7 +16,7 @@ struct Commands {
                 "bundleId": app.bundleIdentifier ?? ""
             ]
         }
-        JSON.ok(data, quiet: ctx.options.quiet)
+        Output.ok(data, quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
@@ -26,26 +26,26 @@ struct Commands {
             options.appName = name
         }
         guard let app = AXHelper.runningApp(options: options) else {
-            JSON.error("App not found", quiet: ctx.options.quiet)
+            Output.error("App not found", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         let ok = app.activate(options: [.activateIgnoringOtherApps])
         if ok {
-            JSON.ok(["pid": Int(app.processIdentifier)], quiet: ctx.options.quiet)
+            Output.ok(["pid": Int(app.processIdentifier)], quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
-        JSON.error("Failed to focus app", quiet: ctx.options.quiet)
+        Output.error("Failed to focus app", quiet: ctx.options.quiet)
         return UitoolExit.appNotFound.rawValue
     }
 
     static func launch(ctx: CommandContext, args: [String]) -> Int32 {
         guard let bundleId = firstPositionalArg(args) else {
-            JSON.error("Missing bundle identifier", quiet: ctx.options.quiet)
+            Output.error("Missing bundle identifier", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         let wait = args.contains("--wait")
         guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) else {
-            JSON.error("Failed to launch app", quiet: ctx.options.quiet)
+            Output.error("Failed to launch app", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         let configuration = NSWorkspace.OpenConfiguration()
@@ -63,7 +63,7 @@ struct Commands {
             launched = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId).first
         }
         guard let app = launched else {
-            JSON.error("Failed to launch app", quiet: ctx.options.quiet)
+            Output.error("Failed to launch app", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         if wait {
@@ -72,16 +72,16 @@ struct Commands {
                 if AXHelper.ensureTrusted() {
                     let element = AXHelper.appElement(for: app)
                     if AXHelper.attribute(element, AXConst.Attr.windows) as [AXUIElement]? != nil {
-                        JSON.ok(["pid": Int(app.processIdentifier)], quiet: ctx.options.quiet)
+                        Output.ok(["pid": Int(app.processIdentifier)], quiet: ctx.options.quiet)
                         return UitoolExit.success.rawValue
                     }
                 }
                 Thread.sleep(forTimeInterval: 0.1)
             }
-            JSON.error("Timeout waiting for app", quiet: ctx.options.quiet)
+            Output.error("Timeout waiting for app", quiet: ctx.options.quiet)
             return UitoolExit.timeout.rawValue
         }
-        JSON.ok(["pid": Int(app.processIdentifier)], quiet: ctx.options.quiet)
+        Output.ok(["pid": Int(app.processIdentifier)], quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
@@ -92,42 +92,42 @@ struct Commands {
             options.appName = name
         }
         guard let app = AXHelper.runningApp(options: options) else {
-            JSON.error("App not found", quiet: ctx.options.quiet)
+            Output.error("App not found", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         let ok = force ? app.forceTerminate() : app.terminate()
         if ok {
-            JSON.ok(["pid": Int(app.processIdentifier)], quiet: ctx.options.quiet)
+            Output.ok(["pid": Int(app.processIdentifier)], quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
-        JSON.error("Failed to quit app", quiet: ctx.options.quiet)
+        Output.error("Failed to quit app", quiet: ctx.options.quiet)
         return UitoolExit.appNotFound.rawValue
     }
 
     static func elements(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let depth = parseIntFlag(args, "--depth") ?? 3
         let windowTitle = parseStringFlag(args, "--window")
         return withResolvedRoot(options: ctx.options, windowTitle: windowTitle, quiet: ctx.options.quiet) { app, root, path in
             let info = AXHelper.elementInfo(element: root, pid: app.processIdentifier, path: path, depth: depth)
-            JSON.ok([info], quiet: ctx.options.quiet)
+            Output.ok([info], quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
     }
 
     static func outlineRows(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let outlineTitle = parseStringFlag(args, "--outline")
         let windowTitle = parseStringFlag(args, "--window")
         return withResolvedRoot(options: ctx.options, windowTitle: windowTitle, quiet: ctx.options.quiet) { app, root, _ in
             guard let outline = findOutline(in: root, title: outlineTitle) else {
-                JSON.error("Outline not found", quiet: ctx.options.quiet)
+                Output.error("Outline not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             let rows = outlineRowElements(in: outline)
@@ -151,14 +151,14 @@ struct Commands {
                 }
                 return dict
             }
-            JSON.ok(data, quiet: ctx.options.quiet)
+            Output.ok(data, quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
     }
 
     static func find(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let options = parseFindOptions(args)
@@ -173,7 +173,7 @@ struct Commands {
                 textDescendants: options.textDescendants
             )
             if matches.isEmpty {
-                JSON.error("Element not found", quiet: ctx.options.quiet)
+                Output.error("Element not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             if options.shouldClick {
@@ -183,37 +183,37 @@ struct Commands {
                     if let ancestor = AXHelper.ancestor(forPath: targetPath, in: AXHelper.appElement(for: app), role: ancestorRole) {
                         target = ancestor
                     } else {
-                        JSON.error("Ancestor not found", quiet: ctx.options.quiet)
+                        Output.error("Ancestor not found", quiet: ctx.options.quiet)
                         return UitoolExit.notFound.rawValue
                     }
                 }
                 if !tryClick(target) {
-                    JSON.error("Failed to click element", quiet: ctx.options.quiet)
+                    Output.error("Failed to click element", quiet: ctx.options.quiet)
                     return UitoolExit.notFound.rawValue
                 }
             }
             let data = matches.map { element, matchPath in
                 AXHelper.elementInfo(element: element, pid: app.processIdentifier, path: matchPath, depth: 0)
             }
-            JSON.ok(data, quiet: ctx.options.quiet)
+            Output.ok(data, quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
     }
 
     static func elementAt(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         guard args.count >= 2, let x = Double(args[0]), let y = Double(args[1]) else {
-            JSON.error("Usage: element-at <x> <y>", quiet: ctx.options.quiet)
+            Output.error("Usage: element-at <x> <y>", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         let system = AXHelper.systemWideElement()
         var element: AXUIElement?
         let result = AXUIElementCopyElementAtPosition(system, Float(x), Float(y), &element)
         guard result == .success, let found = element else {
-            JSON.error("Element not found", quiet: ctx.options.quiet)
+            Output.error("Element not found", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
         var pid: pid_t = 0
@@ -221,30 +221,30 @@ struct Commands {
         let appElement = AXUIElementCreateApplication(pid)
         let path = AXHelper.findPath(to: found, in: appElement) ?? [0]
         let info = AXHelper.elementInfo(element: found, pid: pid, path: path, depth: 0)
-        JSON.ok([info], quiet: ctx.options.quiet)
+        Output.ok([info], quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
     static func click(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         if let id = args.first, id.hasPrefix("ax://") {
             guard let element = AXHelper.elementFromId(id) else {
-                JSON.error("Element not found", quiet: ctx.options.quiet)
+                Output.error("Element not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             if press(element: element) {
-                JSON.ok(quiet: ctx.options.quiet)
+                Output.ok(quiet: ctx.options.quiet)
                 return UitoolExit.success.rawValue
             }
             if let frame = AXHelper.frame(of: element) {
                 EventHelper.click(at: CGPoint(x: frame.midX, y: frame.midY))
-                JSON.ok(quiet: ctx.options.quiet)
+                Output.ok(quiet: ctx.options.quiet)
                 return UitoolExit.success.rawValue
             }
-            JSON.error("Failed to click element", quiet: ctx.options.quiet)
+            Output.error("Failed to click element", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
         let role = parseStringFlag(args, "--role")
@@ -255,93 +255,93 @@ struct Commands {
         return withResolvedRoot(options: ctx.options, windowTitle: windowTitle, quiet: ctx.options.quiet) { _, root, path in
             let matches = AXHelper.findElements(root: root, rootPath: path, role: role, title: title, identifier: identifier, text: text)
             guard let target = matches.first?.0 else {
-                JSON.error("Element not found", quiet: ctx.options.quiet)
+                Output.error("Element not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             if tryClick(target) {
-                JSON.ok(quiet: ctx.options.quiet)
+                Output.ok(quiet: ctx.options.quiet)
                 return UitoolExit.success.rawValue
             }
-            JSON.error("Failed to click element", quiet: ctx.options.quiet)
+            Output.error("Failed to click element", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
     }
 
     static func clickAt(ctx: CommandContext, args: [String]) -> Int32 {
         guard args.count >= 2, let x = Double(args[0]), let y = Double(args[1]) else {
-            JSON.error("Usage: click-at <x> <y>", quiet: ctx.options.quiet)
+            Output.error("Usage: click-at <x> <y>", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         let doubleClick = args.contains("--double")
         let right = args.contains("--right")
         EventHelper.click(at: CGPoint(x: x, y: y), button: right ? .right : .left, clickCount: doubleClick ? 2 : 1)
-        JSON.ok(quiet: ctx.options.quiet)
+        Output.ok(quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
     static func typeText(ctx: CommandContext, args: [String]) -> Int32 {
         guard let text = args.first else {
-            JSON.error("Usage: type <text>", quiet: ctx.options.quiet)
+            Output.error("Usage: type <text>", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         let delay = parseIntFlag(args, "--delay") ?? 0
         EventHelper.type(text: text, delayMs: delay)
-        JSON.ok(quiet: ctx.options.quiet)
+        Output.ok(quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
     static func key(ctx: CommandContext, args: [String]) -> Int32 {
         if args.contains("--list") {
-            JSON.ok(["keys": KeyCodes.supportedKeys()], quiet: ctx.options.quiet)
+            Output.ok(["keys": KeyCodes.supportedKeys()], quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
         if let rawIndex = args.firstIndex(of: "--raw") {
             guard rawIndex + 1 < args.count, let raw = Int(args[rawIndex + 1]) else {
-                JSON.error("Usage: key --raw <keycode>", quiet: ctx.options.quiet)
+                Output.error("Usage: key --raw <keycode>", quiet: ctx.options.quiet)
                 return UitoolExit.invalidArguments.rawValue
             }
             let shortcut = "raw:\(raw)"
             if EventHelper.keyShortcut(shortcut) {
-                JSON.ok(quiet: ctx.options.quiet)
+                Output.ok(quiet: ctx.options.quiet)
                 return UitoolExit.success.rawValue
             }
-            JSON.error("Unknown key", quiet: ctx.options.quiet)
+            Output.error("Unknown key", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         guard let keyString = args.first else {
-            JSON.error("Usage: key <shortcut>", quiet: ctx.options.quiet)
+            Output.error("Usage: key <shortcut>", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         if EventHelper.keyShortcut(keyString) {
-            JSON.ok(quiet: ctx.options.quiet)
+            Output.ok(quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
-        JSON.error("Unknown key", quiet: ctx.options.quiet)
+        Output.error("Unknown key", quiet: ctx.options.quiet)
         return UitoolExit.invalidArguments.rawValue
     }
 
     static func keys(ctx: CommandContext) -> Int32 {
-        JSON.ok(["keys": KeyCodes.supportedKeys()], quiet: ctx.options.quiet)
+        Output.ok(["keys": KeyCodes.supportedKeys()], quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
     static func setValue(ctx: CommandContext, args: [String]) -> Int32 {
         guard args.count >= 2 else {
-            JSON.error("Usage: set-value <id> <value>", quiet: ctx.options.quiet)
+            Output.error("Usage: set-value <id> <value>", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         let id = args[0]
         let value = args[1]
         guard let element = AXHelper.elementFromId(id) else {
-            JSON.error("Element not found", quiet: ctx.options.quiet)
+            Output.error("Element not found", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
         let result = AXUIElementSetAttributeValue(element, AXConst.Attr.value, value as CFTypeRef)
         if result == .success {
-            JSON.ok(quiet: ctx.options.quiet)
+            Output.ok(quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
-        JSON.error("Failed to set value", quiet: ctx.options.quiet)
+        Output.error("Failed to set value", quiet: ctx.options.quiet)
         return UitoolExit.notFound.rawValue
     }
 
@@ -353,42 +353,42 @@ struct Commands {
             let action: CFString = direction == "up" ? AXConst.Action.scrollUp : AXConst.Action.scrollDown
             let result = AXUIElementPerformAction(element, action)
             if result == .success {
-                JSON.ok(quiet: ctx.options.quiet)
+                Output.ok(quiet: ctx.options.quiet)
                 return UitoolExit.success.rawValue
             }
         }
         EventHelper.scroll(deltaY: delta)
-        JSON.ok(quiet: ctx.options.quiet)
+        Output.ok(quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
     static func exists(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let query = parseQueryOptions(args)
         return withResolvedRoot(options: ctx.options, windowTitle: query.windowTitle, quiet: ctx.options.quiet) { _, root, path in
             let matches = AXHelper.findElements(root: root, rootPath: path, role: query.role, title: query.title, identifier: query.identifier, text: query.text)
             if matches.isEmpty {
-                JSON.error("Element not found", quiet: ctx.options.quiet)
+                Output.error("Element not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
-            JSON.ok(quiet: ctx.options.quiet)
+            Output.ok(quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
     }
 
     static func wait(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let query = parseQueryOptions(args)
         let gone = args.contains("--gone")
         let timeout = TimeInterval(parseIntFlag(args, "--timeout") ?? Int(ctx.options.timeout))
         guard let app = AXHelper.runningApp(options: ctx.options) else {
-            JSON.error("App not found", quiet: ctx.options.quiet)
+            Output.error("App not found", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         let deadline = Date().addingTimeInterval(timeout)
@@ -407,24 +407,24 @@ struct Commands {
             let found = !matches.isEmpty
             if gone {
                 if !found {
-                    JSON.ok(quiet: ctx.options.quiet)
+                    Output.ok(quiet: ctx.options.quiet)
                     return UitoolExit.success.rawValue
                 }
             } else {
                 if found {
-                    JSON.ok(quiet: ctx.options.quiet)
+                    Output.ok(quiet: ctx.options.quiet)
                     return UitoolExit.success.rawValue
                 }
             }
             Thread.sleep(forTimeInterval: 0.2)
         }
-        JSON.error("Timeout", quiet: ctx.options.quiet)
+        Output.error("Timeout", quiet: ctx.options.quiet)
         return UitoolExit.timeout.rawValue
     }
 
     static func assert(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let query = parseQueryOptions(args)
@@ -433,41 +433,41 @@ struct Commands {
         let expectedValue = parseStringFlag(args, "--value")
         return withResolvedRoot(options: ctx.options, windowTitle: query.windowTitle, quiet: ctx.options.quiet) { _, root, path in
             guard let element = AXHelper.findElements(root: root, rootPath: path, role: query.role, title: query.title, identifier: query.identifier, text: query.text).first?.0 else {
-                JSON.error("Element not found", quiet: ctx.options.quiet)
+                Output.error("Element not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             if checkEnabled {
                 if AXHelper.boolAttribute(element, AXConst.Attr.enabled) != true {
-                    JSON.error("Expected enabled", quiet: ctx.options.quiet)
+                    Output.error("Expected enabled", quiet: ctx.options.quiet)
                     return UitoolExit.notFound.rawValue
                 }
             }
             if checkChecked {
                 let checked = AXHelper.boolAttribute(element, AXConst.Attr.value) ?? AXHelper.boolAttribute(element, AXConst.Attr.selected)
                 if checked != true {
-                    JSON.error("Expected checked", quiet: ctx.options.quiet)
+                    Output.error("Expected checked", quiet: ctx.options.quiet)
                     return UitoolExit.notFound.rawValue
                 }
             }
             if let expectedValue {
                 let actual: String? = AXHelper.attribute(element, AXConst.Attr.value)
                 if actual != expectedValue {
-                    JSON.error("Value mismatch", quiet: ctx.options.quiet)
+                    Output.error("Value mismatch", quiet: ctx.options.quiet)
                     return UitoolExit.notFound.rawValue
                 }
             }
-            JSON.ok(quiet: ctx.options.quiet)
+            Output.ok(quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
     }
 
     static func windows(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         guard let app = AXHelper.runningApp(options: ctx.options) else {
-            JSON.error("App not found", quiet: ctx.options.quiet)
+            Output.error("App not found", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         let appElement = AXHelper.appElement(for: app)
@@ -483,23 +483,23 @@ struct Commands {
             }
             return dict
         }
-        JSON.ok(data, quiet: ctx.options.quiet)
+        Output.ok(data, quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
     static func windowCommand(ctx: CommandContext, args: [String]) -> Int32 {
         guard args.count >= 2 else {
-            JSON.error("Usage: window <action> <id> [args]", quiet: ctx.options.quiet)
+            Output.error("Usage: window <action> <id> [args]", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let action = args[0]
         let id = args[1]
         guard let window = windowFromId(id, options: ctx.options) else {
-            JSON.error("Window not found", quiet: ctx.options.quiet)
+            Output.error("Window not found", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
         switch action {
@@ -512,7 +512,7 @@ struct Commands {
             _ = AXUIElementSetAttributeValue(window, AXConst.Attr.fullScreen, kCFBooleanTrue)
         case "resize":
             guard args.count >= 4, let w = Double(args[2]), let h = Double(args[3]) else {
-                JSON.error("Usage: window resize <id> <width> <height>", quiet: ctx.options.quiet)
+                Output.error("Usage: window resize <id> <width> <height>", quiet: ctx.options.quiet)
                 return UitoolExit.invalidArguments.rawValue
             }
             var size = CGSize(width: w, height: h)
@@ -520,61 +520,61 @@ struct Commands {
             _ = AXUIElementSetAttributeValue(window, AXConst.Attr.size, axValue)
         case "move":
             guard args.count >= 4, let x = Double(args[2]), let y = Double(args[3]) else {
-                JSON.error("Usage: window move <id> <x> <y>", quiet: ctx.options.quiet)
+                Output.error("Usage: window move <id> <x> <y>", quiet: ctx.options.quiet)
                 return UitoolExit.invalidArguments.rawValue
             }
             var point = CGPoint(x: x, y: y)
             let axValue = AXValueCreate(.cgPoint, &point)!
             _ = AXUIElementSetAttributeValue(window, AXConst.Attr.position, axValue)
         default:
-            JSON.error("Unknown window action", quiet: ctx.options.quiet)
+            Output.error("Unknown window action", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
-        JSON.ok(quiet: ctx.options.quiet)
+        Output.ok(quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
     static func menus(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         guard let app = AXHelper.runningApp(options: ctx.options) else {
-            JSON.error("App not found", quiet: ctx.options.quiet)
+            Output.error("App not found", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         let appElement = AXHelper.appElement(for: app)
         guard let menuBar: AXUIElement = AXHelper.attribute(appElement, AXConst.Attr.menuBar) else {
-            JSON.error("Menu bar not found", quiet: ctx.options.quiet)
+            Output.error("Menu bar not found", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
         let data = menuTree(menuBar, depth: 3)
-        JSON.ok(data, quiet: ctx.options.quiet)
+        Output.ok(data, quiet: ctx.options.quiet)
         return UitoolExit.success.rawValue
     }
 
     static func menu(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         guard let app = AXHelper.runningApp(options: ctx.options) else {
-            JSON.error("App not found", quiet: ctx.options.quiet)
+            Output.error("App not found", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         let options = parseMenuOptions(args)
         if options.path.isEmpty, !options.listChildren {
-            JSON.error("Usage: menu <path...>", quiet: ctx.options.quiet)
+            Output.error("Usage: menu <path...>", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         let appElement = AXHelper.appElement(for: app)
         guard let menuBar: AXUIElement = AXHelper.attribute(appElement, AXConst.Attr.menuBar) else {
-            JSON.error("Menu bar not found", quiet: ctx.options.quiet)
+            Output.error("Menu bar not found", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
         if options.listChildren {
             guard let container = findMenuContainer(menuBar: menuBar, path: options.path, match: options.match) else {
-                JSON.error("Menu item not found", quiet: ctx.options.quiet)
+                Output.error("Menu item not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             let children = menuChildren(of: container).map { child -> [String: Any] in
@@ -583,27 +583,27 @@ struct Commands {
                 if let role = AXHelper.role(of: child) { dict["role"] = role }
                 return dict
             }
-            JSON.ok(children, quiet: ctx.options.quiet)
+            Output.ok(children, quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
         if let target = findMenuContainer(menuBar: menuBar, path: options.path, match: options.match) {
             if press(element: target) {
-                JSON.ok(quiet: ctx.options.quiet)
+                Output.ok(quiet: ctx.options.quiet)
                 return UitoolExit.success.rawValue
             }
         }
-        JSON.error("Menu item not found", quiet: ctx.options.quiet)
+        Output.error("Menu item not found", quiet: ctx.options.quiet)
         return UitoolExit.notFound.rawValue
     }
 
     static func statusbar(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let options = parseStatusBarOptions(args)
         guard let menuBar = systemMenuBar() else {
-            JSON.error("Menu bar not found", quiet: ctx.options.quiet)
+            Output.error("Menu bar not found", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
         let items = statusBarItems(in: menuBar)
@@ -618,15 +618,15 @@ struct Commands {
                 }
                 return dict
             }
-            JSON.ok(data, quiet: ctx.options.quiet)
+            Output.ok(data, quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
         guard let name = options.name else {
-            JSON.error("Usage: statusbar --list | statusbar <item> | statusbar --menu <item>", quiet: ctx.options.quiet)
+            Output.error("Usage: statusbar --list | statusbar <item> | statusbar --menu <item>", quiet: ctx.options.quiet)
             return UitoolExit.invalidArguments.rawValue
         }
         guard let target = findStatusBarItem(items, name: name, match: options.match) else {
-            JSON.error("Status bar item not found", quiet: ctx.options.quiet)
+            Output.error("Status bar item not found", quiet: ctx.options.quiet)
             return UitoolExit.notFound.rawValue
         }
         if options.listMenu {
@@ -635,7 +635,7 @@ struct Commands {
                 Thread.sleep(forTimeInterval: 0.1)
             }
             guard let menu: AXUIElement = AXHelper.attribute(target, AXConst.Attr.menu) else {
-                JSON.error("Menu not found", quiet: ctx.options.quiet)
+                Output.error("Menu not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             let children = AXHelper.children(of: menu).map { child -> [String: Any] in
@@ -644,40 +644,40 @@ struct Commands {
                 if let role = AXHelper.role(of: child) { dict["role"] = role }
                 return dict
             }
-            JSON.ok(children, quiet: ctx.options.quiet)
+            Output.ok(children, quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
         if press(element: target) {
-            JSON.ok(quiet: ctx.options.quiet)
+            Output.ok(quiet: ctx.options.quiet)
             return UitoolExit.success.rawValue
         }
-        JSON.error("Failed to click status bar item", quiet: ctx.options.quiet)
+        Output.error("Failed to click status bar item", quiet: ctx.options.quiet)
         return UitoolExit.notFound.rawValue
     }
 
     static func screenshot(ctx: CommandContext, args: [String]) -> Int32 {
         guard AXHelper.ensureTrusted() else {
-            JSON.error("Accessibility permission denied", quiet: ctx.options.quiet)
+            Output.error("Accessibility permission denied", quiet: ctx.options.quiet)
             return UitoolExit.permissionDenied.rawValue
         }
         let output = parseStringFlag(args, "-o") ?? parseStringFlag(args, "--output")
         if let elementId = parseStringFlag(args, "--element") {
             guard let element = AXHelper.elementFromId(elementId) else {
-                JSON.error("Element not found", quiet: ctx.options.quiet)
+                Output.error("Element not found", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             guard let frame = AXHelper.frame(of: element) else {
-                JSON.error("Element has no frame", quiet: ctx.options.quiet)
+                Output.error("Element has no frame", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             guard let image = capture(rect: frame) else {
-                JSON.error("Failed to capture", quiet: ctx.options.quiet)
+                Output.error("Failed to capture", quiet: ctx.options.quiet)
                 return UitoolExit.notFound.rawValue
             }
             return writeImage(image, output: output, quiet: ctx.options.quiet)
         }
         guard let app = AXHelper.runningApp(options: ctx.options) else {
-            JSON.error("App not found", quiet: ctx.options.quiet)
+            Output.error("App not found", quiet: ctx.options.quiet)
             return UitoolExit.appNotFound.rawValue
         }
         if let window = focusedWindow(for: app), let number: NSNumber = AXHelper.attribute(window, AXConst.Attr.windowNumber) {
@@ -685,7 +685,7 @@ struct Commands {
                 return writeCGImage(image, output: output, quiet: ctx.options.quiet)
             }
         }
-        JSON.error("Failed to capture window", quiet: ctx.options.quiet)
+        Output.error("Failed to capture window", quiet: ctx.options.quiet)
         return UitoolExit.notFound.rawValue
     }
 }
@@ -999,10 +999,10 @@ func resolveRoot(options: GlobalOptions, windowTitle: String?) -> RootResolution
 func withResolvedRoot(options: GlobalOptions, windowTitle: String?, quiet: Bool, _ body: (NSRunningApplication, AXUIElement, [Int]) -> Int32) -> Int32 {
     switch resolveRoot(options: options, windowTitle: windowTitle) {
     case .appNotFound:
-        JSON.error("App not found", quiet: quiet)
+        Output.error("App not found", quiet: quiet)
         return UitoolExit.appNotFound.rawValue
     case .windowNotFound:
-        JSON.error("Window not found", quiet: quiet)
+        Output.error("Window not found", quiet: quiet)
         return UitoolExit.notFound.rawValue
     case .ok(let app, let root, let path):
         return body(app, root, path)
@@ -1148,7 +1148,7 @@ func writeImage(_ image: CGImage, output: String?, quiet: Bool) -> Int32 {
     }
     let rep = NSBitmapImageRep(cgImage: image)
     guard let data = rep.representation(using: .png, properties: [:]) else {
-        JSON.error("Failed to encode image", quiet: quiet)
+        Output.error("Failed to encode image", quiet: quiet)
         return UitoolExit.notFound.rawValue
     }
     FileHandle.standardOutput.write(data)
@@ -1158,17 +1158,17 @@ func writeImage(_ image: CGImage, output: String?, quiet: Bool) -> Int32 {
 func writeCGImage(_ image: CGImage, output: String?, quiet: Bool) -> Int32 {
     let rep = NSBitmapImageRep(cgImage: image)
     guard let data = rep.representation(using: .png, properties: [:]) else {
-        JSON.error("Failed to encode image", quiet: quiet)
+        Output.error("Failed to encode image", quiet: quiet)
         return UitoolExit.notFound.rawValue
     }
     if let output {
         do {
             try data.write(to: URL(fileURLWithPath: output))
         } catch {
-            JSON.error("Failed to write file", quiet: quiet)
+            Output.error("Failed to write file", quiet: quiet)
             return UitoolExit.notFound.rawValue
         }
-        JSON.ok(["path": output], quiet: quiet)
+        Output.ok(["path": output], quiet: quiet)
         return UitoolExit.success.rawValue
     }
     FileHandle.standardOutput.write(data)

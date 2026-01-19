@@ -21,6 +21,30 @@ final class ParsingTests: XCTestCase {
         XCTAssertEqual(args, ["apps"])
     }
 
+    func testParseGlobalOptionsFormatJsonFlag() {
+        var args = ["--format", "json", "apps"]
+        let (options, error) = parseGlobalOptions(&args)
+        XCTAssertNil(error)
+        XCTAssertEqual(options.format, .json)
+        XCTAssertEqual(args, ["apps"])
+    }
+
+    func testParseGlobalOptionsShortJsonFlag() {
+        var args = ["-j", "apps"]
+        let (options, error) = parseGlobalOptions(&args)
+        XCTAssertNil(error)
+        XCTAssertEqual(options.format, .json)
+        XCTAssertEqual(args, ["apps"])
+    }
+
+    func testParseGlobalOptionsFormatEqualsJson() {
+        var args = ["--format=json", "apps"]
+        let (options, error) = parseGlobalOptions(&args)
+        XCTAssertNil(error)
+        XCTAssertEqual(options.format, .json)
+        XCTAssertEqual(args, ["apps"])
+    }
+
     func testParseGlobalOptionsInvalidPid() {
         var args = ["--pid", "abc"]
         let (_, error) = parseGlobalOptions(&args)

@@ -1,22 +1,22 @@
 import XCTest
 @testable import steve
 
-final class JSONTests: XCTestCase {
+final class OutputTests: XCTestCase {
     func testOkPayloadWithoutData() {
-        let payload = JSON.okPayload()
+        let payload = Output.okPayload()
         XCTAssertEqual(payload["ok"] as? Bool, true)
         XCTAssertNil(payload["data"])
     }
 
     func testErrorPayload() {
-        let payload = JSON.errorPayload("nope")
+        let payload = Output.errorPayload("nope")
         XCTAssertEqual(payload["ok"] as? Bool, false)
         XCTAssertEqual(payload["error"] as? String, "nope")
     }
 
     func testEncodeRoundTrip() throws {
-        let payload = JSON.okPayload(["a": 1])
-        guard let data = JSON.encode(payload) else {
+        let payload = Output.okPayload(["a": 1])
+        guard let data = Output.encode(payload) else {
             XCTFail("Failed to encode JSON")
             return
         }

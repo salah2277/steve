@@ -40,7 +40,25 @@ func parseGlobalOptions(_ args: inout [String]) -> (GlobalOptions, String?) {
             options.quiet = true
             args.remove(at: i)
             continue
+        case "--format":
+            guard i + 1 < args.count else { return (options, "Missing value for --format") }
+            let value = args[i + 1]
+            guard let format = parseOutputFormat(value) else { return (options, "Invalid format") }
+            options.format = format
+            args.removeSubrange(i...i + 1)
+            continue
+        case "-j":
+            options.format = .json
+            args.remove(at: i)
+            continue
         default:
+            if arg.hasPrefix("--format=") {
+                let value = String(arg.dropFirst("--format=".count))
+                guard let format = parseOutputFormat(value) else { return (options, "Invalid format") }
+                options.format = format
+                args.remove(at: i)
+                continue
+            }
             i += 1
         }
     }
@@ -49,13 +67,13 @@ func parseGlobalOptions(_ args: inout [String]) -> (GlobalOptions, String?) {
 
 func usage() -> String {
     """
-    steve — Mac UI Automation CLI
+    steve - Mac UI Automation CLI
 
     Commands: apps, focus, launch, quit, elements, outline-rows, find, element-at, click, click-at,
               type, key, keys, set-value, scroll, exists, wait, assert, windows, window,
               menus, menu, statusbar, screenshot
 
-    Global options: --app, --pid, --bundle, --timeout, --verbose, --quiet
+    Global options: --app, --pid, --bundle, --timeout, --verbose, --quiet, --format <text|json>, -j
     """
 }
 
@@ -134,8 +152,9 @@ func runCLI(args: [String]) -> Int32 {
 
     let command = args.removeFirst()
     let (options, error) = parseGlobalOptions(&args)
+    Output.configure(format: options.format)
     if let error {
-        JSON.error(error, quiet: options.quiet)
+        Output.error(error, quiet: options.quiet)
         return UitoolExit.invalidArguments.rawValue
     }
 
@@ -195,10 +214,21 @@ func runCLI(args: [String]) -> Int32 {
     case "screenshot":
         return Commands.screenshot(ctx: ctx, args: args)
     case "--help", "help", "-h":
-        JSON.ok(["usage": usage()], quiet: options.quiet)
+        print(usage())
         return UitoolExit.success.rawValue
     default:
-        JSON.error("Unknown command", quiet: options.quiet)
+        Output.error("Unknown command", quiet: options.quiet)
         return UitoolExit.invalidArguments.rawValue
+    }
+}
+
+private func parseOutputFormat(_ value: String) -> OutputFormat? {
+    switch value.lowercased() {
+    case "text":
+        return .text
+    case "json":
+        return .json
+    default:
+        return nil
     }
 }

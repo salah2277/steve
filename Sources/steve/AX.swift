@@ -41,6 +41,7 @@ struct GlobalOptions {
     var timeout: TimeInterval = 5
     var verbose = false
     var quiet = false
+    var format: OutputFormat = .text
 }
 
 struct AXHelper {
