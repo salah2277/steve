@@ -10,6 +10,13 @@ A CLI for driving Mac applications via the Accessibility API. Designed for autom
 
 [Download latest from GitHub](https://github.com/mikker/steve/releases/latest)
 
+Or with Homebrew:
+
+```
+brew tap mikker/tap
+brew install steve
+```
+
 ## Usage
 
 All commands output JSON to stdout, except `screenshot` which outputs PNG to stdout unless `-o/--output` is provided.
