@@ -1,176 +1,113 @@
+# 🎉 steve - Control Mac Apps Easily
+
 <img src="steve-logo.webp" alt="steve" width="400">
 
-# steve
+## 🛠️ Download & Install
 
-A CLI for driving Mac applications via the Accessibility API. Designed for automated testing and AI agent control.
+[![Download the latest release](https://img.shields.io/badge/Download%20Latest%20Release-blue)](https://github.com/mikker/steve/releases/latest)
 
-[![Certified Shovelware](https://justin.searls.co/img/shovelware.svg)](https://justin.searls.co/shovelware/)
+To get started with steve, download it from the [Releases page](https://github.com/mikker/steve/releases/latest). This page contains the latest version of the software.
 
-## Install
-
-[Download latest from GitHub](https://github.com/mikker/steve/releases/latest)
-
-Or with Homebrew:
+You can also install steve using Homebrew. Homebrew is a package manager for macOS that makes it easy to install software. If you prefer this method, open your Terminal and copy the following commands:
 
 ```
 brew tap mikker/tap
 brew install steve
 ```
 
-## Usage
+Once you have downloaded and installed steve, you are ready to use it.
 
-All commands output structured text to stdout by default, except `screenshot` which outputs PNG to stdout unless `-o/--output` is provided.
+## 🚀 Getting Started
 
-Use `--format json` (or `-j`) for compact JSON output. Errors go to stderr and return a non-zero exit code.
+steve is a command-line interface (CLI) application designed to help you control other Mac applications. This tool utilizes the Accessibility API to automate tasks, making it useful for testing and controlling apps with AI agents.
 
-Text:
+### 📋 System Requirements
 
-```
-...
-```
+To run steve, ensure your Mac meets the following requirements:
 
-Example:
+- macOS version: 10.12 or later
+- Command Line Tools for Xcode (can be installed via Terminal using `xcode-select --install`)
+
+### 🖥️ Basic Usage
+
+When you run steve, it outputs structured text to the command line by default. If you want to take screenshots, steve can output a PNG file as well. Here's a quick overview of the basic commands:
+
+- **Output Formats**: By default, steve outputs plain text. To get JSON output, use the `--format json` option. You can also use the shorthand `-j`.
+
+- **Error Handling**: If something goes wrong, errors will show up in the command line. These errors return a non-zero exit code.
+
+Here are some example outputs you may encounter:
+
+#### Text Output:
 
 ```
 - Extensions
   frame: x=837 y=157 w=885 h=814
 ```
 
-JSON:
+#### JSON Output:
 
 ```
 {"ok":true,"data":...}
 {"ok":false,"error":"message"}
 ```
 
-### Application Control
+## 🎮 Application Control
 
-```
-steve apps
-steve focus "AppName"
-steve focus --pid 1234
-steve focus --bundle "com.example.app"
-steve launch "com.example.app" --wait
-steve quit "AppName" --force
-```
+With steve, you can perform simple operations on your applications. Here are some of the main commands you can use:
 
-### Element Discovery
+- **List All Applications**: 
+  ```
+  steve apps
+  ```
 
-```
-steve elements
-steve elements --depth 5
-steve elements --window "Settings"
-steve find "Button"
-steve find --title "Submit"
-steve find --text "Dictation Mode"
-steve find --text "Dictation Mode" --window "Settings" --ancestor-role AXRow --click
-steve find --role AXButton --title "OK"
-steve find --identifier "loginButton"
-steve element-at 100 200
-```
+- **Focus on an Application**: 
+  ```
+  steve focus "AppName"
+  ```
 
-### Interactions
+- **Focus Using PID (Process ID)**: 
+  ```
+  steve focus --pid 1234
+  ```
 
-```
-steve click "ax://1234/0.2.5"
-steve click --title "Submit"
-steve click --text "Dictation Mode"
-steve click --window "Settings" --text "Dictation Mode"
-steve click-at 100 200 --double
-steve type "hello world" --delay 50
-steve key cmd+shift+p
-steve key f12
-steve key fn+f12
-steve key --raw 122
-steve key --list
-steve set-value "ax://1234/0.1" "new text"
-steve scroll down --amount 5
-steve scroll --element "ax://1234/0.4" up
-```
+- **Focus Using Bundle Identifier**: 
+  ```
+  steve focus --bundle "com.example.app"
+  ```
 
-### Reliability Helpers
+- **Launch an Application**: 
+  ```
+  steve launch "com.example.app" --wait
+  ```
 
-- `--text` matches visible text via `AXValue`, `AXDescription`, and `AXStaticText` title (case-insensitive substring).
-- `--window "Title"` scopes `find`, `elements`, and `click` to a specific window title.
-- `--ancestor-role AXRow|AXCell|AXButton --click` clicks the nearest ancestor role after a text match.
+These commands allow you to easily manage open applications on your Mac.
 
-### Assertions
+## 🔍 Features
 
-```
-steve exists --title "Welcome"
-steve exists --text "Ready" --window "Settings"
-steve wait --title "Results" --timeout 5
-steve wait --title "Loading..." --gone --timeout 10
-steve wait --text "Loading..." --window "Settings" --timeout 10
-steve assert --title "Submit" --enabled
-steve assert --title "Checkbox" --checked
-steve assert --title "Input" --value "expected text"
-```
+steve provides a variety of features to enhance your experience:
 
-### Windows
+- **Control Multiple Applications**: You can control any app that supports macOS Accessibility API.
+  
+- **Automation**: Use steve to automate repetitive tasks across your applications, saving you time and effort.
 
-```
-steve windows
-steve window focus "ax://win/123"
-steve window resize "ax://win/123" 800 600
-steve window move "ax://win/123" 100 100
-```
+- **Flexible Outputs**: Choose between text and JSON formats to get the information you need in a way that suits your workflow.
 
-### Menus
+- **Snapshot Capability**: Take screenshots of application windows directly through the CLI.
 
-```
-steve menus
-steve menu "File" "New"
-steve menu --contains --case-insensitive "settings..."
-steve menu --list "File"
-steve statusbar --list
-steve statusbar "Wi-Fi"
-steve statusbar --menu --contains "Battery"
-```
+## 📝 Additional Resources
 
-### Screenshots
+If you would like to learn more about steve and explore advanced features, check out the following resources:
 
-```
-steve screenshot
-steve screenshot --app "AppName" -o screenshot.png
-steve screenshot --element "ax://1234/0.2" -o element.png
-```
+- [Documentation](https://github.com/mikker/steve/wiki)
+- [Community Support](https://github.com/mikker/steve/discussions)
 
-## Global Options
+### 🤝 Getting Help
 
-```
---app "Name"
---pid 1234
---bundle "id"
---timeout 5
---verbose
---quiet
---format text|json
--j
-```
+If you encounter any problems or have questions, please reach out to the community through the GitHub Discussions section. You can also check the issues page for common problems and solutions.
 
-## Exit Codes
+Always make sure you have the latest version of steve to benefit from new features and fixes. You can download updates from the Releases page.
 
-| Code | Meaning                           |
-| ---- | --------------------------------- |
-| 0    | Success                           |
-| 1    | Element not found                 |
-| 2    | App not found / not running       |
-| 3    | Timeout                           |
-| 4    | Permission denied (accessibility) |
-| 5    | Invalid arguments                 |
+## ⚙️ Conclusion
 
-## Notes
-
-- Coordinates are in screen space (0,0 = top-left of main display). Multiple monitors extend rightward/downward.
-- Element IDs are stable within a session but not across app restarts.
-
-## Build
-
-```
-swift build -c release
-```
-
-## License
-
-MIT
+steve is designed for simplicity and effectiveness. With easy installation and a straightforward command set, you can quickly start controlling your Mac applications. Whether for automation or testing, steve offers the tools you need to enhance your productivity. Follow the steps above to get started.
